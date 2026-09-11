@@ -20,19 +20,31 @@ def rendel_vizsgalat(panasz):
     else:
         return "Labor / Megfigyelés"
 
-# --- 1. SIKERES ADATBETÖLTÉS (Közvetlen és stabil tesztadatok a szintaktikai hibák elkerülésére) ---
+# --- 1. GARANTÁLTAN MŰKÖDŐ DINAMIKUS ADATGENERÁLÁS (Nincs szintaktikai hiba) ---
 if 'raw_df' not in st.session_state:
-    # Közvetlenül létrehozunk egy stabil és helyes adathalmazt zárójelekkel kitöltve
+    # Generálunk 50 életszerű minta-beteget a szimuláció elindulásához
+    minta_panaszok = [
+        'Mellkasi fájdalom', 'Hasi fájdalom', 'Nehézlégzés', 
+        'Zavart tudatállapot', 'Jobb láb sérülése', 'Láz', 'Fejfájás'
+    ]
+    
+    np.random.seed(42)
+    ids = np.random.randint(90000000, 99999999, size=50)
+    panaszok = np.random.choice(minta_panaszok, size=50)
+    scores = np.random.randint(0, 5, size=50) # NEWS2 pontok 0 és 4 között
+    
     fallback_df = pd.DataFrame({
-        'stay_id':,
-        'panasz_magyarul': ['Mellkasi fájdalom', 'Hasi fájdalom', 'Nehézlégzés', 'Zavart tudatállapot', 'Jobb láb sérülése'],
-        'news2_score': [4, 3, 5, 2, 1]
+        'stay_id': ids,
+        'panasz_magyarul': panaszok,
+        'news2_score': scores
     })
     fallback_df['Szükséges_Vizsgálat'] = fallback_df['panasz_magyarul'].apply(rendel_vizsgalat)
     st.session_state['raw_df'] = fallback_df
 
 # Kigyűjtjük az egyedi panaszokat az autocomplete mezőhöz
-osszes_panasz_lista = sorted(st.session_state['raw_df']['panasz_magyarul'].dropna().unique())
+osszes_panasz_lista = sorted(list(st.session_state['raw_df']['panasz_magyarul'].dropna().unique()))
+if "Mellkasi fájdalom" not in osszes_panasz_lista:
+    osszes_panasz_lista.append("Mellkasi fájdalom")
 
 # --- 2. KÓRHÁZI KAPACITÁS AUTOMATIZÁLÁSA (Fix adatok) ---
 ct_auto_delay = 115    
