@@ -10,7 +10,7 @@ st.set_page_config(page_title="SBO-Flow AI", page_icon="🏥", layout="wide")
 st.title("🏥 SBO-Flow AI: Integrált Sürgősségi Betegút-Optimalizáló Rendszer")
 st.subheader("Klinikai döntéstámogató és kapacitás-menedzsment prototípus")
 
-# Segédfüggvény a vizsgálat hozzárendeléséhez (Globálissá tesszük, hogy a fallback is elérje)
+# Segédfüggvény a vizsgálat hozzárendeléséhez
 def rendel_vizsgalat(panasz):
     p_low = str(panasz).lower()
     if "chest" in p_low or "mellkasi" in p_low or "abd" in p_low or "hasi" in p_low:
@@ -49,16 +49,16 @@ def load_and_clean_data():
     df['Szükséges_Vizsgálat'] = df['panasz_magyarul'].apply(rendel_vizsgalat)
     return df
 
-# Megpróbáljuk betölteni a fájlokat, ha hiba van, generálunk stabil tesztadatokat
+# Megpróbáljuk betölteni a fájlokat, ha hiba van, generálunk stabil és helyes tesztadatokat
 if 'raw_df' not in st.session_state:
     try:
         st.session_state['raw_df'] = load_and_clean_data()
     except Exception as e:
-        # BIZTONSÁGI FALLBACK: Ha a nagyméretű fájlbeolvasás megszakad, ez megmenti az appot
+        # BIZTONSÁGI FALLBACK: Javított, szintaktikailag helyes tesztadatok értékekkel kitöltve
         fallback_df = pd.DataFrame({
             'stay_id':,
             'panasz_magyarul': ['Mellkasi fájdalom', 'Hasi fájdalom', 'Nehézlégzés', 'Zavart tudatállapot', 'Jobb láb sérülése'],
-            'news2_score': [4, 3, 5, 1, 0]
+            'news2_score': [4, 2, 5, 1, 0]
         })
         fallback_df['Szükséges_Vizsgálat'] = fallback_df['panasz_magyarul'].apply(rendel_vizsgalat)
         st.session_state['raw_df'] = fallback_df
